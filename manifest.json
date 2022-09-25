@@ -6,5 +6,6 @@
   "author": "Legendword",
   "action": {
     "default_popup": "popup.html"
-  }
+  },
+  "permissions": ["storage", "unlimitedStorage", "tabs"]
 }
