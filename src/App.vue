@@ -73,6 +73,27 @@ export default {
       this.windows = windows;
       console.log(windows[0]);
     });
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes.windows?.newValue) {
+        this.windows = changes.windows.newValue;
+      }
+    });
+  },
+  methods: {
+    restoreWindow(index) {
+      const windowToOpen = this.windows[index];
+      chrome.windows.create({
+        focused: true,
+        state: windowToOpen.state,
+        type: windowToOpen.type,
+        url: windowToOpen.tabs.map((tab) => tab.url),
+      });
+    },
+    deleteWindow(index) {
+      this.windows.splice(index, 1);
+      chrome.storage.local.set({ windows: this.windows });
+      this.windowIndex = -1;
+    },
   },
 };
 </script>
@@ -91,7 +112,7 @@ body,
 }
 
 .app-container {
-  --color-primary: #3d6665;
+  --color-primary: #5d9896;
   --color-highlight: #94bfbe;
   --color-secondary: #bb947e;
 }
@@ -118,15 +139,13 @@ main {
   border-right: 2px solid #eaeaea;
   box-shadow: 2px 0px 5px 0px rgb(0 0 0 / 10%);
   height: 100%;
-
-  .container-label {
-    padding: 20px;
-  }
+  overflow: scroll;
 }
 
 .main-container {
   flex: 1;
   height: 100%;
+  overflow: scroll;
 }
 
 .window {
@@ -206,6 +225,7 @@ main {
 }
 
 .container-label {
+  padding: 20px;
   color: gray;
 }
 
