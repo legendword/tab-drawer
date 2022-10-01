@@ -52,7 +52,24 @@ hr {
   left: 0;
   width: 100%;
   height: 100%;
-  padding: 10px;
+  background-color: #fff;
   display: none;
   z-index: 11;
+}
+
+#window-select p {
+  margin: 10px 5px;
+}
+
+span.button {
+  cursor: pointer;
+  user-select: none;
+  color: gray;
+  font-weight: 500;
+  padding: 5px;
+}
+
+span.button:hover {
+  color: #000;
+  background: rgba(0, 0, 0, 0.1);
 }

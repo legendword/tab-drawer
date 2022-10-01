@@ -46,9 +46,9 @@ document.getElementById('restoreWindow').onclick = function () {
     var windows = result.windows ? result.windows : [];
     document.getElementById('window-list').innerHTML = '';
     windows.forEach(function (theWindow) {
-      var div = document.createElement('div');
-      div.innerHTML = theWindow.tabs.length + ' tabs';
-      div.onclick = function () {
+      var button = document.createElement('button');
+      button.innerHTML = theWindow.tabs.length + ' tabs';
+      button.onclick = function () {
         chrome.windows.create({
           focused: true,
           state: theWindow.state,
@@ -60,9 +60,14 @@ document.getElementById('restoreWindow').onclick = function () {
           window.close();
         });
       };
-      document.getElementById('window-list').appendChild(div);
+      document.getElementById('window-list').appendChild(button);
     });
     show('overlay');
     show('window-select');
   });
+}
+
+document.getElementById('window-select-back').onclick = function () {
+  hide('window-select');
+  hide('overlay');
 }
