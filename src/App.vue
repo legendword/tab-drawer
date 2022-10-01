@@ -16,7 +16,9 @@
             }"
             @click="windowIndex = ind"
           >
-            <div class="name">Window</div>
+            <div class="name">
+              {{ window.name ? window.name : "Unnamed Window" }}
+            </div>
             <div class="text">{{ window.tabs.length }} Tabs</div>
           </div>
         </div>
@@ -24,7 +26,9 @@
       <div class="main-container">
         <div v-if="selectedWindow" class="window-details">
           <div class="window-header">
-            <div class="window-name">Window</div>
+            <div class="window-name">
+              {{ selectedWindow.name ? selectedWindow.name : "Unnamed Window" }}
+            </div>
             <div class="window-actions">
               <button @click="restoreWindow(windowIndex)">Restore</button>
               <button class="danger" @click="deleteWindow(windowIndex)">
@@ -34,7 +38,8 @@
           </div>
           <div class="tabs-container">
             <div class="container-label">
-              {{ selectedWindow.tabs.length }} Tabs
+              <div>{{ selectedWindow.tabs.length }} Tabs</div>
+              <div>{{ formatTime(selectedWindow.savedAt) }}</div>
             </div>
             <div class="tabs">
               <div
@@ -92,7 +97,10 @@ export default {
     deleteWindow(index) {
       this.windows.splice(index, 1);
       chrome.storage.local.set({ windows: this.windows });
-      this.windowIndex = -1;
+      this.windowIndex = this.windows.length > index ? index : index - 1;
+    },
+    formatTime(time) {
+      return new Date(time).toLocaleString();
     },
   },
 };
@@ -227,6 +235,11 @@ main {
 .container-label {
   padding: 20px;
   color: gray;
+}
+
+.tabs-container .container-label {
+  display: flex;
+  justify-content: space-between;
 }
 
 button {

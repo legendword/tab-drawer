@@ -8,16 +8,22 @@
 <body>
   <p class="extension-title">Tab Drawer</p>
   <div class="actions">
-    <button id="saveWindowAndClose">Save Window and Close</button>
-    <button id="saveWindow">Save Window</button>
+    <button class="block-button" id="saveWindowAndClose">Save Window and Close</button>
+    <button class="block-button" id="saveWindow">Save Window</button>
     <hr />
-    <button id="restoreWindow">Restore Window...</button>
-    <button id="dashboard">Dashboard</button>
+    <button class="block-button" id="restoreWindow">Restore Window...</button>
+    <button class="block-button" id="dashboard">Dashboard</button>
   </div>
-  <div id="overlay"></div>
-  <div id="window-select">
-    <p><span class="button" id="window-select-back">&lt;</span> Select window to restore:</p>
+  <div class="hidden" id="overlay"></div>
+  <div class="dialog hidden" id="window-select">
+    <p><span class="button" id="cancelWindowSelect">&lt;</span> Select window to restore:</p>
     <div id="window-list"></div>
+  </div>
+  <div class="dialog hidden" id="save-dialog">
+    <p>Save window as:</p>
+    <input type="text" id="save-name" placeholder="Unnamed Window" />
+    <button class="button" id="submitSaveWindow">Save</button>
+    <div><span class="button" id="cancelSaveWindow">Cancel</span></div>
   </div>
 
   <script src="popup.js"></script>
