@@ -10,23 +10,7 @@ function focusOn(id) {
   document.getElementById(id).focus();
 }
 
-var closeAfterSave = false;
-
-document.getElementById('saveWindow').onclick = function () {
-  closeAfterSave = false;
-  show('overlay');
-  show('save-dialog');
-  focusOn('save-name');
-};
-
-document.getElementById('saveWindowAndClose').onclick = function () {
-  closeAfterSave = true;
-  show('overlay');
-  show('save-dialog');
-  focusOn('save-name');
-};
-
-document.getElementById('submitSaveWindow').onclick = function () {
+function saveWindow() {
   var name = document.getElementById('save-name').value || 'Unnamed Window';
   chrome.windows.getCurrent({
     populate: true
@@ -48,6 +32,32 @@ document.getElementById('submitSaveWindow').onclick = function () {
       });
     });
   });
+}
+
+var closeAfterSave = false;
+
+document.getElementById('saveWindow').onclick = function () {
+  closeAfterSave = false;
+  show('overlay');
+  show('save-dialog');
+  focusOn('save-name');
+};
+
+document.getElementById('saveWindowAndClose').onclick = function () {
+  closeAfterSave = true;
+  show('overlay');
+  show('save-dialog');
+  focusOn('save-name');
+};
+
+document.getElementById('submitSaveWindow').onclick = function () {
+  saveWindow();
+};
+
+document.getElementById('save-name').onkeydown = function (event) {
+  if (event.key == 'Enter') {
+    saveWindow();
+  }
 };
 
 document.getElementById('dashboard').onclick = function () {
@@ -64,7 +74,7 @@ document.getElementById('restoreWindow').onclick = function () {
       windows.forEach(function (theWindow) {
         var button = document.createElement('button');
         button.classList.add('block-button');
-        button.innerHTML = theWindow.tabs.length + ' tabs';
+        button.innerHTML = (theWindow.name ? theWindow.name : 'Unnamed Window') + ' (' + theWindow.tabs.length + ' tabs)';
         button.onclick = function () {
           chrome.windows.create({
             focused: true,

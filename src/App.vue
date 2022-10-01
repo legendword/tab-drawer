@@ -31,7 +31,7 @@
             </div>
             <div class="window-actions">
               <button @click="restoreWindow(windowIndex)">Restore</button>
-              <button class="danger" @click="deleteWindow(windowIndex)">
+              <button class="danger" @click="activeDialog = 'deleteWindow'">
                 Delete
               </button>
             </div>
@@ -55,6 +55,22 @@
         </div>
       </div>
     </main>
+    <div v-if="activeDialog" class="overlay" @click="activeDialog = null"></div>
+    <div v-if="activeDialog == 'deleteWindow'" class="dialog">
+      <div class="dialog-container">
+        <div class="dialog-title">Delete Window</div>
+        <div class="dialog-content">
+          Are you sure you want to delete the window named
+          {{ selectedWindow.name ? selectedWindow.name : "Unnamed Window" }}?
+        </div>
+        <div class="dialog-actions">
+          <button @click="activeDialog = null">Cancel</button>
+          <button class="danger" @click="deleteWindow(windowIndex)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -63,8 +79,9 @@ export default {
   data() {
     return {
       windows: [],
-
       windowIndex: -1,
+
+      activeDialog: null,
     };
   },
   computed: {
@@ -95,6 +112,7 @@ export default {
       });
     },
     deleteWindow(index) {
+      this.activeDialog = null;
       this.windows.splice(index, 1);
       chrome.storage.local.set({ windows: this.windows });
       this.windowIndex = this.windows.length > index ? index : index - 1;
@@ -123,6 +141,51 @@ body,
   --color-primary: #5d9896;
   --color-highlight: #94bfbe;
   --color-secondary: #bb947e;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 11;
+
+  .dialog-container {
+    background-color: #fff;
+    min-width: 600px;
+    padding: 20px;
+    border-radius: 5px;
+  }
+
+  .dialog-title {
+    margin: 10px 0 20px 0;
+    font-size: 1.3rem;
+  }
+
+  .dialog-content {
+    margin: 20px 0;
+    font-size: 1rem;
+  }
+
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
 }
 
 header {
@@ -159,6 +222,7 @@ main {
 .window {
   padding: 20px;
   cursor: pointer;
+  border-top: 1px solid #eaeaea;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
   &:hover {
@@ -170,7 +234,7 @@ main {
     color: #fff;
   }
 
-  &:not(:last-child) {
+  &:last-child {
     border-bottom: 1px solid #eaeaea;
   }
 
