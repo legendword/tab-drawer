@@ -55,20 +55,22 @@
         </div>
       </div>
     </main>
-    <div v-if="activeDialog" class="overlay" @click="activeDialog = null"></div>
+    <div
+      v-show="activeDialog"
+      class="overlay"
+      @click="activeDialog = null"
+    ></div>
     <div v-if="activeDialog == 'deleteWindow'" class="dialog">
-      <div class="dialog-container">
-        <div class="dialog-title">Delete Window</div>
-        <div class="dialog-content">
-          Are you sure you want to delete the window named
-          {{ selectedWindow.name ? selectedWindow.name : "Unnamed Window" }}?
-        </div>
-        <div class="dialog-actions">
-          <button @click="activeDialog = null">Cancel</button>
-          <button class="danger" @click="deleteWindow(windowIndex)">
-            Delete
-          </button>
-        </div>
+      <div class="dialog-title">Delete Window</div>
+      <div class="dialog-content">
+        Are you sure you want to delete the window named
+        {{ selectedWindow.name ? selectedWindow.name : "Unnamed Window" }}?
+      </div>
+      <div class="dialog-actions">
+        <button @click="activeDialog = null">Cancel</button>
+        <button class="danger" @click="deleteWindow(windowIndex)">
+          Delete
+        </button>
       </div>
     </div>
   </div>
@@ -93,7 +95,10 @@ export default {
     chrome.storage.local.get("windows", (result) => {
       var windows = result.windows ? result.windows : [];
       this.windows = windows;
-      console.log(windows[0]);
+      console.log(windows);
+      if (windows.length > 0) {
+        this.windowIndex = 0;
+      }
     });
     chrome.storage.onChanged.addListener((changes) => {
       if (changes.windows?.newValue) {
@@ -155,21 +160,14 @@ body,
 
 .dialog {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  min-width: 600px;
+  padding: 20px;
+  border-radius: 5px;
   z-index: 11;
-
-  .dialog-container {
-    background-color: #fff;
-    min-width: 600px;
-    padding: 20px;
-    border-radius: 5px;
-  }
 
   .dialog-title {
     margin: 10px 0 20px 0;
@@ -271,6 +269,7 @@ main {
 .tab {
   padding: 20px;
   cursor: pointer;
+  border-top: 1px solid #eaeaea;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
   &:hover {
@@ -282,7 +281,7 @@ main {
     color: #fff;
   }
 
-  &:not(:last-child) {
+  &:last-child {
     border-bottom: 1px solid #eaeaea;
   }
 

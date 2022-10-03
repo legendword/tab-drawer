@@ -2,8 +2,13 @@
   "manifest_version": 3,
   "name": "Tab Drawer",
   "version": "1.0.0",
-  "description": "A drawer for your tabs.",
+  "description": "A drawer that lets you save your browser windows and restore them at a later time.",
   "author": "Legendword",
+  "icons": {
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
   "action": {
     "default_popup": "popup.html"
   },
