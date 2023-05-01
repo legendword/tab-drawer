@@ -16,6 +16,7 @@
             }"
             @click="windowIndex = ind"
           >
+            <!-- dynamic class -->
             <div class="name">
               {{ window.name ? window.name : "Unnamed Window" }}
             </div>
@@ -46,9 +47,29 @@
                 v-for="(tab, ind) in selectedWindow.tabs"
                 :key="ind"
                 class="tab"
+                :class="{
+                  active: selectedTabIndex == ind,
+                }"
+                @click="selectedTabIndex = ind"
               >
-                <div class="name">{{ tab.title }}</div>
-                <div class="text">{{ tab.url }}</div>
+                <div>
+                  <div class="name">{{ tab.title }}</div>
+                  <div class="text">{{ tab.url }}</div>
+                </div>
+                <div>
+                  <button
+                    v-show="selectedTabIndex == ind"
+                    @click="deleteTab(windowIndex, selectedTabIndex)"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    v-show="selectedTabIndex == ind"
+                    @click="openTab(windowIndex, selectedTabIndex)"
+                  >
+                    Open
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -84,6 +105,8 @@ export default {
       windowIndex: -1,
 
       activeDialog: null,
+
+      selectedTabIndex: -1,
     };
   },
   computed: {
@@ -100,6 +123,7 @@ export default {
         this.windowIndex = 0;
       }
     });
+
     chrome.storage.onChanged.addListener((changes) => {
       if (changes.windows?.newValue) {
         this.windows = changes.windows.newValue;
@@ -122,8 +146,27 @@ export default {
       chrome.storage.local.set({ windows: this.windows });
       this.windowIndex = this.windows.length > index ? index : index - 1;
     },
+    openTab(windowIndex, tabIndex) {
+      const tabToOpen = this.windows[windowIndex].tabs[tabIndex];
+      chrome.tabs.create({
+        active: true,
+        url: tabToOpen.url,
+      });
+    },
+    deleteTab(windowIndex, tabIndex) {
+      this.windows[windowIndex].tabs.splice(tabIndex, 1);
+      chrome.storage.local.set({ tabs: this.windows[windowIndex].tabs });
+      chrome.storage.local.set({ windows: this.windows });
+      this.windowIndex = this.windows.length > index ? index : index - 1;
+      this.selectedTabIndex = -1;
+    },
+
     formatTime(time) {
       return new Date(time).toLocaleString();
+    },
+
+    selectTab() {
+      console.log(this);
     },
   },
 };
@@ -267,6 +310,8 @@ main {
 }
 
 .tab {
+  display: flex;
+  justify-content: space-between;
   padding: 20px;
   cursor: pointer;
   border-top: 1px solid #eaeaea;
