@@ -32,6 +32,9 @@
             </div>
             <div class="window-actions">
               <button @click="restoreWindow(windowIndex)">Restore</button>
+              <button class="danger" @click="DeleteSelected(windowIndex)">
+                Delete Selected
+              </button>
               <button class="danger" @click="activeDialog = 'deleteWindow'">
                 Delete
               </button>
@@ -39,7 +42,18 @@
           </div>
           <div class="tabs-container">
             <div class="container-label">
-              <div>{{ selectedWindow.tabs.length }} Tabs</div>
+              <div>
+                <input
+                  type="checkbox"
+                  id="checkboxTotal"
+                  class="checkbox"
+                  @click="checkAllTabs()"
+                />
+                <label for="checkboxTotal"
+                  >{{ selectedWindow.tabs.length }} Tabs</label
+                >
+              </div>
+
               <div>{{ formatTime(selectedWindow.savedAt) }}</div>
             </div>
             <div class="tabs">
@@ -52,10 +66,19 @@
                 }"
                 @click="selectedTabIndex = ind"
               >
-                <div>
-                  <div class="name">{{ tab.title }}</div>
-                  <div class="text">{{ tab.url }}</div>
+                <div class="checkboxTab">
+                  <input
+                    type="checkbox"
+                    id="checkbox"
+                    class="checkbox"
+                    @click="updateSelectedTabIndices(ind)"
+                  />
+                  <label class="tabInfo" for="checkbox">
+                    <div class="name">{{ tab.title }}</div>
+                    <div class="text">{{ tab.url }}</div>
+                  </label>
                 </div>
+
                 <div>
                   <button
                     v-show="selectedTabIndex == ind"
@@ -107,6 +130,8 @@ export default {
       activeDialog: null,
 
       selectedTabIndex: -1,
+
+      selectedTabIndices: [],
     };
   },
   computed: {
@@ -159,6 +184,42 @@ export default {
       chrome.storage.local.set({ windows: this.windows });
       this.windowIndex = this.windows.length > index ? index : index - 1;
       this.selectedTabIndex = -1;
+    },
+
+    DeleteSelected(windowIndex) {
+      const allTabs = this.windows[windowIndex].tabs;
+
+      const tabsToDelete = allTabs.filter((index) =>
+        this.selectedTabIndices.includes(index)
+      );
+      console.log(tabsToDelete);
+
+      allTabs.splice(0, tabsToDelete.length);
+    },
+
+    checkAllTabs() {
+      let ifChecked = document.querySelector("#checkboxTotal").checked;
+      ifChecked = !ifChecked;
+      const checkboxes = document.querySelectorAll("#checkbox");
+
+      if (!ifChecked) {
+        checkboxes.forEach((checkbox) => {
+          checkbox.checked = true;
+        });
+      } else {
+        checkboxes.forEach((checkbox) => {
+          checkbox.checked = false;
+        });
+      }
+    },
+    updateSelectedTabIndices(ind) {
+      if (this.selectedTabIndices.includes(ind)) {
+        this.selectedTabIndices = this.selectedTabIndices.filter(
+          (index) => index !== ind
+        );
+      } else {
+        this.selectedTabIndices.push(ind);
+      }
     },
 
     formatTime(time) {
@@ -338,6 +399,20 @@ main {
   .text {
     font-size: 1rem;
   }
+
+  .checkboxTab {
+    display: inline-flex;
+    align-items: flex-start;
+  }
+
+  .checkbox {
+    display: block;
+    margin-right: 10px;
+  }
+}
+
+.checkbox {
+  margin-right: 10px;
 }
 
 .container-label {
