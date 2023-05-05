@@ -42,18 +42,7 @@
           </div>
           <div class="tabs-container">
             <div class="container-label">
-              <div>
-                <input
-                  type="checkbox"
-                  id="checkboxTotal"
-                  class="checkbox"
-                  @click="checkAllTabs()"
-                />
-                <label for="checkboxTotal"
-                  >{{ selectedWindow.tabs.length }} Tabs</label
-                >
-              </div>
-
+              <div>{{ selectedWindow.tabs.length }} Tabs</div>
               <div>{{ formatTime(selectedWindow.savedAt) }}</div>
             </div>
             <div class="tabs">
