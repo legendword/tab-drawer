@@ -53,7 +53,6 @@
                   >{{ selectedWindow.tabs.length }} Tabs</label
                 >
               </div>
-
               <div>{{ formatTime(selectedWindow.savedAt) }}</div>
             </div>
             <div class="tabs">
