@@ -6,6 +6,7 @@
     <main>
       <div class="windows-container">
         <div class="container-label">Saved Windows ({{ windows.length }})</div>
+
         <div class="windows">
           <div
             v-for="(window, ind) in windows"
@@ -32,17 +33,25 @@
             </div>
             <div class="window-actions">
               <button @click="restoreWindow(windowIndex)">Restore</button>
-              <button class="danger" @click="DeleteSelected(windowIndex)">
+              <button class="danger" @click="deleteSelected(windowIndex)">
                 Delete Selected
               </button>
               <button class="danger" @click="activeDialog = 'deleteWindow'">
-                Delete
+                Delete Window
               </button>
             </div>
           </div>
           <div class="tabs-container">
             <div class="container-label">
-              <div>{{ selectedWindow.tabs.length }} Tabs</div>
+              <div class="checkboxTab">
+                <input
+                  type="checkbox"
+                  id="checkboxTotal"
+                  @change="checkAllTabs(windowIndex)"
+                />
+                <label>{{ selectedWindow.tabs.length }} Tabs</label>
+              </div>
+
               <div>{{ formatTime(selectedWindow.savedAt) }}</div>
             </div>
             <div class="tabs">
@@ -59,8 +68,8 @@
                   <input
                     type="checkbox"
                     id="checkbox"
-                    class="checkbox"
-                    @click="updateSelectedTabIndices(ind)"
+                    value="ind"
+                    @change="updateSelectedTabIndices(ind)"
                   />
                   <label class="tabInfo" for="checkbox">
                     <div class="name">{{ tab.title }}</div>
@@ -69,12 +78,12 @@
                 </div>
 
                 <div>
-                  <button
+                  <!-- <button
                     v-show="selectedTabIndex == ind"
                     @click="deleteTab(windowIndex, selectedTabIndex)"
                   >
                     Delete
-                  </button>
+                  </button> -->
                   <button
                     v-show="selectedTabIndex == ind"
                     @click="openTab(windowIndex, selectedTabIndex)"
@@ -167,40 +176,69 @@ export default {
         url: tabToOpen.url,
       });
     },
-    deleteTab(windowIndex, tabIndex) {
-      this.windows[windowIndex].tabs.splice(tabIndex, 1);
-      chrome.storage.local.set({ tabs: this.windows[windowIndex].tabs });
-      chrome.storage.local.set({ windows: this.windows });
-      this.windowIndex = this.windows.length > index ? index : index - 1;
-      this.selectedTabIndex = -1;
-    },
 
-    DeleteSelected(windowIndex) {
+    // deleteTab(windowIndex, tabIndex) {
+    //   this.windows[windowIndex].tabs.splice(tabIndex, 1);
+    //   chrome.storage.local.set({ tabs: this.windows[windowIndex].tabs });
+    //   chrome.storage.local.set({ windows: this.windows });
+    //   this.windowIndex = this.windows.length > index ? index : index - 1;
+    //   this.selectedTabIndex = -1;
+    // },
+
+    deleteSelected(windowIndex) {
+      // console.log("print the selected tab indices");
+      // console.log(this.selectedTabIndices);
       const allTabs = this.windows[windowIndex].tabs;
 
-      const tabsToDelete = allTabs.filter((index) =>
-        this.selectedTabIndices.includes(index)
-      );
-      console.log(tabsToDelete);
+      if (this.selectedTabIndices.length == allTabs.length) {
+        allTabs.splice(0, allTabs.length);
+      }
 
-      allTabs.splice(0, tabsToDelete.length);
+      // console.log("print all tabs");
+      // console.log(allTabs);
+
+      const remainingTabs = allTabs.filter((tab, index) => {
+        return !this.selectedTabIndices.includes(index);
+      });
+
+      // console.log("print remaining tabs");
+      // console.log(remainingTabs);
+
+      const allCheckBoxes = document.querySelectorAll("#checkbox");
+      allCheckBoxes.forEach((checkbox) => (checkbox.checked = false));
+      this.selectedTabIndices = [];
+      this.windows[windowIndex].tabs = remainingTabs;
+
+      chrome.storage.local.set({ tabs: remainingTabs });
+      chrome.storage.local.set({ windows: this.windows });
     },
 
-    checkAllTabs() {
+    checkAllTabs(windowIndex) {
       let ifChecked = document.querySelector("#checkboxTotal").checked;
+
       ifChecked = !ifChecked;
+
       const checkboxes = document.querySelectorAll("#checkbox");
+      const allTabs = this.windows[this.windowIndex].tabs;
 
       if (!ifChecked) {
         checkboxes.forEach((checkbox) => {
           checkbox.checked = true;
         });
+
+        allTabs.forEach((tab) => {
+          if (!this.selectedTabIndices.includes(tab.index)) {
+            this.selectedTabIndices.push(tab.index);
+          }
+        });
       } else {
         checkboxes.forEach((checkbox) => {
           checkbox.checked = false;
         });
+        this.selectedTabIndices = [];
       }
     },
+
     updateSelectedTabIndices(ind) {
       if (this.selectedTabIndices.includes(ind)) {
         this.selectedTabIndices = this.selectedTabIndices.filter(
@@ -209,6 +247,7 @@ export default {
       } else {
         this.selectedTabIndices.push(ind);
       }
+      console.log(this.selectedTabIndices);
     },
 
     formatTime(time) {
@@ -391,16 +430,19 @@ main {
 
   .checkboxTab {
     display: inline-flex;
-    align-items: flex-start;
+    align-items: flex-center;
+    padding-right: 10px;
   }
 
-  .checkbox {
-    display: block;
-    margin-right: 10px;
+  .tabInfo {
+    margin-left: 10px;
   }
 }
 
-.checkbox {
+#checkboxTotal {
+  display: inline-flex;
+  align-items: flex-center;
+
   margin-right: 10px;
 }
 
