@@ -66,11 +66,6 @@ export default {
       windowIndex: -1,
 
       activeDialog: null,
-
-      selectedTabIndex: -1,
-
-      selectedTabIndices: [],
-      selectedTabIDs: [],
     };
   },
   computed: {
