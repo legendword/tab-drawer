@@ -6,7 +6,6 @@
     <main>
       <div class="windows-container">
         <div class="container-label">Saved Windows ({{ windows.length }})</div>
-
         <div class="windows">
           <div
             v-for="(window, ind) in windows"
@@ -17,7 +16,6 @@
             }"
             @click="windowIndex = ind"
           >
-            <!-- dynamic class -->
             <div class="name">
               {{ window.name ? window.name : "Unnamed Window" }}
             </div>
@@ -26,75 +24,12 @@
         </div>
       </div>
       <div class="main-container">
-        <div v-if="selectedWindow" class="window-details">
-          <div class="window-header">
-            <div class="window-name">
-              {{ selectedWindow.name ? selectedWindow.name : "Unnamed Window" }}
-            </div>
-            <div class="window-actions">
-              <button @click="restoreWindow(windowIndex)">Restore</button>
-              <button class="danger" @click="deleteSelected(windowIndex)">
-                Delete Selected
-              </button>
-              <button class="danger" @click="activeDialog = 'deleteWindow'">
-                Delete Window
-              </button>
-            </div>
-          </div>
-          <div class="tabs-container">
-            <div class="container-label">
-              <div class="checkboxTab">
-                <input
-                  type="checkbox"
-                  id="checkboxTotal"
-                  @change="checkAllTabs(windowIndex)"
-                />
-                <label>{{ selectedWindow.tabs.length }} Tabs</label>
-              </div>
-
-              <div>{{ formatTime(selectedWindow.savedAt) }}</div>
-            </div>
-            <div class="tabs">
-              <div
-                v-for="(tab, ind) in selectedWindow.tabs"
-                :key="ind"
-                class="tab"
-                :class="{
-                  active: selectedTabIndex == ind,
-                }"
-                @click="selectedTabIndex = ind"
-              >
-                <div class="checkboxTab">
-                  <input
-                    type="checkbox"
-                    id="checkbox"
-                    value="ind"
-                    @change="updateSelectedTabIndices(ind)"
-                  />
-                  <label class="tabInfo" for="checkbox">
-                    <div class="name">{{ tab.title }}</div>
-                    <div class="text">{{ tab.url }}</div>
-                  </label>
-                </div>
-
-                <div>
-                  <!-- <button
-                    v-show="selectedTabIndex == ind"
-                    @click="deleteTab(windowIndex, selectedTabIndex)"
-                  >
-                    Delete
-                  </button> -->
-                  <button
-                    v-show="selectedTabIndex == ind"
-                    @click="openTab(windowIndex, selectedTabIndex)"
-                  >
-                    Open
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <window-view
+          v-if="selectedWindow"
+          :win="selectedWindow"
+          @show-dialog="activeDialog = $event"
+          @update-tabs="updateTabs(windowIndex, $event)"
+        />
       </div>
     </main>
     <div
@@ -119,7 +54,12 @@
 </template>
 
 <script>
+import WindowView from "./components/WindowView.vue";
+
 export default {
+  components: {
+    WindowView,
+  },
   data() {
     return {
       windows: [],
@@ -130,6 +70,7 @@ export default {
       selectedTabIndex: -1,
 
       selectedTabIndices: [],
+      selectedTabIDs: [],
     };
   },
   computed: {
@@ -154,108 +95,15 @@ export default {
     });
   },
   methods: {
-    restoreWindow(index) {
-      const windowToOpen = this.windows[index];
-      chrome.windows.create({
-        focused: true,
-        state: windowToOpen.state,
-        type: windowToOpen.type,
-        url: windowToOpen.tabs.map((tab) => tab.url),
-      });
-    },
     deleteWindow(index) {
       this.activeDialog = null;
       this.windows.splice(index, 1);
       chrome.storage.local.set({ windows: this.windows });
       this.windowIndex = this.windows.length > index ? index : index - 1;
     },
-    openTab(windowIndex, tabIndex) {
-      const tabToOpen = this.windows[windowIndex].tabs[tabIndex];
-      chrome.tabs.create({
-        active: true,
-        url: tabToOpen.url,
-      });
-    },
-
-    // deleteTab(windowIndex, tabIndex) {
-    //   this.windows[windowIndex].tabs.splice(tabIndex, 1);
-    //   chrome.storage.local.set({ tabs: this.windows[windowIndex].tabs });
-    //   chrome.storage.local.set({ windows: this.windows });
-    //   this.windowIndex = this.windows.length > index ? index : index - 1;
-    //   this.selectedTabIndex = -1;
-    // },
-
-    deleteSelected(windowIndex) {
-      // console.log("print the selected tab indices");
-      // console.log(this.selectedTabIndices);
-      const allTabs = this.windows[windowIndex].tabs;
-
-      if (this.selectedTabIndices.length == allTabs.length) {
-        allTabs.splice(0, allTabs.length);
-      }
-
-      // console.log("print all tabs");
-      // console.log(allTabs);
-
-      const remainingTabs = allTabs.filter((tab, index) => {
-        return !this.selectedTabIndices.includes(index);
-      });
-
-      // console.log("print remaining tabs");
-      // console.log(remainingTabs);
-
-      const allCheckBoxes = document.querySelectorAll("#checkbox");
-      allCheckBoxes.forEach((checkbox) => (checkbox.checked = false));
-      this.selectedTabIndices = [];
-      this.windows[windowIndex].tabs = remainingTabs;
-
-      chrome.storage.local.set({ tabs: remainingTabs });
+    updateTabs(windowIndex, tabs) {
+      this.windows[windowIndex].tabs = tabs;
       chrome.storage.local.set({ windows: this.windows });
-    },
-
-    checkAllTabs(windowIndex) {
-      let ifChecked = document.querySelector("#checkboxTotal").checked;
-
-      ifChecked = !ifChecked;
-
-      const checkboxes = document.querySelectorAll("#checkbox");
-      const allTabs = this.windows[this.windowIndex].tabs;
-
-      if (!ifChecked) {
-        checkboxes.forEach((checkbox) => {
-          checkbox.checked = true;
-        });
-
-        allTabs.forEach((tab) => {
-          if (!this.selectedTabIndices.includes(tab.index)) {
-            this.selectedTabIndices.push(tab.index);
-          }
-        });
-      } else {
-        checkboxes.forEach((checkbox) => {
-          checkbox.checked = false;
-        });
-        this.selectedTabIndices = [];
-      }
-    },
-
-    updateSelectedTabIndices(ind) {
-      if (this.selectedTabIndices.includes(ind)) {
-        this.selectedTabIndices = this.selectedTabIndices.filter(
-          (index) => index !== ind
-        );
-      } else {
-        this.selectedTabIndices.push(ind);
-      }
-      console.log(this.selectedTabIndices);
-    },
-
-    formatTime(time) {
-      return new Date(time).toLocaleString();
-    },
-
-    selectTab() {
-      console.log(this);
     },
   },
 };
@@ -378,82 +226,9 @@ main {
   }
 }
 
-.window-details {
-  padding: 40px;
-
-  .window-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-
-  .window-name {
-    font-size: 1.8rem;
-    font-weight: 500;
-  }
-
-  .window-actions button:not(:last-child) {
-    margin-right: 10px;
-  }
-}
-
-.tab {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-  cursor: pointer;
-  border-top: 1px solid #eaeaea;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: #eaeaea;
-  }
-
-  &.active {
-    background-color: var(--color-highlight);
-    color: #fff;
-  }
-
-  &:last-child {
-    border-bottom: 1px solid #eaeaea;
-  }
-
-  .name {
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-
-  .text {
-    font-size: 1rem;
-  }
-
-  .checkboxTab {
-    display: inline-flex;
-    align-items: flex-center;
-    padding-right: 10px;
-  }
-
-  .tabInfo {
-    margin-left: 10px;
-  }
-}
-
-#checkboxTotal {
-  display: inline-flex;
-  align-items: flex-center;
-
-  margin-right: 10px;
-}
-
 .container-label {
   padding: 20px;
   color: gray;
-}
-
-.tabs-container .container-label {
-  display: flex;
-  justify-content: space-between;
 }
 
 button {
@@ -467,19 +242,41 @@ button {
   cursor: pointer;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: var(--color-primary);
     color: #fff;
   }
+
+  &.danger {
+    background-color: #fff;
+    color: #c0392b;
+
+    &:not(:disabled):hover {
+      background-color: #a63446;
+      color: #fff;
+    }
+  }
+
+  &.small {
+    padding: 8px 15px;
+  }
+
+  &:disabled {
+    color: #aeaeae;
+    cursor: default;
+    box-shadow: none;
+  }
 }
 
-button.danger {
-  background-color: #fff;
-  color: #c0392b;
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
 
-  &:hover {
-    background-color: #a63446;
-    color: #fff;
-  }
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+  padding-right: 10px;
 }
 </style>
