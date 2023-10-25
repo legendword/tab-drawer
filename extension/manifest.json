@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Drawer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A drawer that lets you save your browser windows and restore them at a later time.",
   "author": "Legendword",
   "icons": {
