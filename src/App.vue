@@ -113,8 +113,18 @@ body,
   height: 100%;
   width: 100%;
   font-size: 1rem;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
 }
 
 .app-container {
@@ -196,7 +206,9 @@ main {
   padding: 20px;
   cursor: pointer;
   border-top: 1px solid #eaeaea;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out;
 
   &:hover {
     background-color: #eaeaea;
@@ -235,7 +247,9 @@ button {
   color: var(--color-primary);
   box-shadow: 0px 1px 4px 0px rgb(0 0 0 / 5%);
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out;
 
   &:not(:disabled):hover {
     background-color: var(--color-primary);

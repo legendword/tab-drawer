@@ -21,8 +21,20 @@
             ref="allCheckbox"
           />
           <label>{{ win.tabs.length }} Tabs</label>
-          <button class="small" :disabled="selectedTabs.length === 0" @click="restoreSelectedTabs">Restore Selected</button>
-          <button class="small danger" :disabled="selectedTabs.length === 0" @click="deleteSelectedTabs">Delete Selected</button>
+          <button
+            class="small"
+            :disabled="selectedTabs.length === 0"
+            @click="restoreSelectedTabs"
+          >
+            Restore Selected
+          </button>
+          <button
+            class="small danger"
+            :disabled="selectedTabs.length === 0"
+            @click="deleteSelectedTabs"
+          >
+            Delete Selected
+          </button>
         </div>
         <div>{{ formatTime(win.savedAt) }}</div>
       </div>
@@ -62,7 +74,10 @@ export default {
   watch: {
     selectedTabs: {
       handler(selectedTabs) {
-        if (selectedTabs.length > 0 && selectedTabs.length < this.win.tabs.length) {
+        if (
+          selectedTabs.length > 0 &&
+          selectedTabs.length < this.win.tabs.length
+        ) {
           this.$refs.allCheckbox.indeterminate = true;
         } else {
           this.$refs.allCheckbox.indeterminate = false;

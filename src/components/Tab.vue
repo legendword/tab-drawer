@@ -1,11 +1,7 @@
 <template>
   <div class="tab">
     <div class="checkbox-container">
-      <input
-        type="checkbox"
-        :checked="selected"
-        @change="toggleSelect"
-      />
+      <input type="checkbox" :checked="selected" @change="toggleSelect" />
       <label class="tabInfo" for="checkbox">
         <div class="name">{{ tab.title }}</div>
         <div class="text">{{ tab.url }}</div>
@@ -13,17 +9,8 @@
     </div>
 
     <div>
-      <button
-        v-show="selected"
-        @click="openTab"
-      >
-        Open
-      </button>
-      <button
-        v-show="selected"
-        class="danger"
-        @click="deleteTab"
-      >
+      <button v-show="selected" @click="openTab">Open</button>
+      <button v-show="selected" class="danger" @click="deleteTab">
         Delete
       </button>
     </div>
@@ -67,7 +54,9 @@ export default {
   padding: 20px;
   cursor: pointer;
   border-top: 1px solid #eaeaea;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out;
 
   &:hover {
     background-color: #eaeaea;

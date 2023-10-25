@@ -1,12 +1,12 @@
-const path = require('path');
-const { VueLoaderPlugin } = require('vue-loader')
+const path = require("path");
+const { VueLoaderPlugin } = require("vue-loader");
 
 module.exports = {
-  mode: 'production',
-  entry: './src/index.js',
+  mode: "production",
+  entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, 'extension', 'dist'),
-    filename: 'bundle.js',
+    path: path.resolve(__dirname, "extension", "dist"),
+    filename: "bundle.js",
     clean: true,
   },
   module: {
@@ -15,11 +15,11 @@ module.exports = {
         test: /\.m?js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
-            presets: ['@babel/preset-env']
-          }
-        }
+            presets: ["@babel/preset-env"],
+          },
+        },
       },
       {
         test: /\.css$/i,
@@ -27,19 +27,13 @@ module.exports = {
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [
-          "style-loader",
-          "css-loader",
-          "sass-loader",
-        ],
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
-      }
-    ]
+        loader: "vue-loader",
+      },
+    ],
   },
-  plugins: [
-    new VueLoaderPlugin()
-  ]
+  plugins: [new VueLoaderPlugin()],
 };
