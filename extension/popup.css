@@ -111,6 +111,11 @@ hr {
   margin: 10px 5px;
 }
 
+#window-list {
+  height: calc(100% - 34px);
+  overflow-y: auto;
+}
+
 #save-dialog {
   display: flex;
   flex-direction: column;
